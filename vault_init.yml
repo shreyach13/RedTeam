@@ -31,6 +31,8 @@ spec:
       labels:
         app: vaultapp
     spec:
+      nodeSelector:
+        failure-domain.beta.kubernetes.io/zone: eu-central-1a
       containers:
       - name: vaultapp
         image: registry.hub.docker.com/library/vault:1.1.3
