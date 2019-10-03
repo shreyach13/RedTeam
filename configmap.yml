@@ -1,0 +1,19 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: vaultconfigmap
+  namespace: shreyaspace
+data:
+  # Configuration values can be set as key-value properties
+  # Or set as complete file contents (even JSON!)
+  vault.hcl: |-
+    storage "file" {
+      path = "/vault/home"
+    }
+
+    disable_mlock = true
+
+    listener "tcp" {
+      address = "0.0.0.0:8200"
+      tls_disable = true
+    }
