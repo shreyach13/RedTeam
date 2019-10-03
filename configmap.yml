@@ -8,7 +8,7 @@ data:
   # Or set as complete file contents (even JSON!)
   vault.hcl: |-
     storage "file" {
-      path = "/vault/home"
+      path = "/tmp"
     }
 
     disable_mlock = true

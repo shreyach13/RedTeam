@@ -1,7 +1,9 @@
-storage "file" {
-  path = "/vault"
-}
+#storage "file" {
+#  path = "/"
+#}
 
+
+storage "inmem" {}
 disable_mlock = true
 
 listener "tcp" {

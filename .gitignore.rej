@@ -1,0 +1,22 @@
+***************
+*** 6,9 ****
+  *.tfstate.*
+  
+  # .tfvars files
+  *.tfvars
+--- 6,20 ----
+  *.tfstate.*
+  
+  # .tfvars files
++ *.tfvar
++ 
++ # vault files
++ 
++ *.zip
++ vault
++ 
+  *.tfvars
++ 
++ #zip and vault
++ .zip
++ vault

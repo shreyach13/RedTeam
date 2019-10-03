@@ -1,0 +1,144 @@
+diff --git a/.gitignore b/.gitignore
+index 1fef4ab..b608675 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -6,4 +6,15 @@
+ *.tfstate.*
+ 
+ # .tfvars files
++*.tfvar
++
++# vault files
++
++*.zip
++vault
++
+ *.tfvars
++
++#zip and vault
++.zip
++vault
+diff --git a/configmap.yml b/configmap.yml
+index 7e4479c..e11884d 100644
+--- a/configmap.yml
++++ b/configmap.yml
+@@ -8,7 +8,7 @@ data:
+   # Or set as complete file contents (even JSON!)
+   vault.hcl: |-
+     storage "file" {
+-      path = "/vault/home"
++      path = "/tmp"
+     }
+ 
+     disable_mlock = true
+diff --git a/init_vault.sh b/init_vault.sh
+index 98c7c09..ea79ee9 100755
+--- a/init_vault.sh
++++ b/init_vault.sh
+@@ -1,14 +1,23 @@
+ #!/bin/sh
+ apt-get update
++apt-get install unzip
++unzip vault_1.2.3_linux_amd64.zip
++apt-get update
+ apt-get install -y curl
+-set -euo pipefail
++#set -euo pipefail
++
++#unzip vault_1.2.3_linux_amd64.zip /vault
+ 
+-while ! curl http://vault:8200/v1/sys/health| grep initialized; do
++while ! curl http://vaultapp.shreyaspace:8200/v1/sys/health| grep initialized; do
+     echo "Waiting for vault to accept connections"
+     sleep 1;
+ done
+-./vault operator init -key-shares 1 -key-threshold 1 > temp.txt
++#sleep 50
++cp /vault/vault /usr/local/bin
++vault operator init -key-shares 1 -key-threshold 1 > temp.txt
+ UNSEALKEY=`grep 'Unseal Key 1:' temp.txt | awk '{print $NF}'`
+ INITKEY=`grep 'Initial Root Token:' temp.txt | awk '{print $NF}'`
+-./vault operator unseal ${UNSEALKEY}
++vault operator unseal ${UNSEALKEY}
+ export VAULT_TOKEN=${INITKEY}
++
++sleep 1000
+diff --git a/vault b/vault
+new file mode 100755
+index 0000000..b1943ca
+Binary files /dev/null and b/vault differ
+diff --git a/vault.hcl b/vault.hcl
+index a9de801..e72dbc1 100644
+--- a/vault.hcl
++++ b/vault.hcl
+@@ -1,7 +1,9 @@
+-storage "file" {
+-  path = "/vault"
+-}
++#storage "file" {
++#  path = "/"
++#}
++
+ 
++storage "inmem" {}
+ disable_mlock = true
+ 
+ listener "tcp" {
+diff --git a/vault_1.2.3_linux_amd64.zip b/vault_1.2.3_linux_amd64.zip
+new file mode 100644
+index 0000000..d72f3a5
+Binary files /dev/null and b/vault_1.2.3_linux_amd64.zip differ
+diff --git a/vault_init.yml b/vault_init.yml
+index 8ca0aa8..b1ccc12 100644
+--- a/vault_init.yml
++++ b/vault_init.yml
+@@ -1,3 +1,18 @@
++apiVersion: v1
++kind: Service
++metadata:
++  name: vaultapp
++  namespace: shreyaspace
++spec:
++  selector:
++    app: vaultapp
++    #environment: test
++  ports:
++    - protocol: TCP
++      port: 8200
++      targetPort: 8200
++  type: LoadBalancer
++---
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -32,10 +47,15 @@ spec:
+           #restartPolicy: Always
+       - image: ubuntu:18.04
+         name: vaultuser
++        env:
++          - name: VAULT_ADDR
++            value: 'http://vaultapp.shreyaspace:8200'
+         volumeMounts:
+           - name: mystorage
+             mountPath: /vault
++        #command: ['chmod']
+         command: ['/vault/init_vault.sh']
++        #args: ['u+x', '/vault/init_vault.sh', '/vault/init_vault.sh']
+       volumes:
+         - name: mystorage
+           hostPath:
+diff --git a/vaultroles.hcl b/vaultroles.hcl
+new file mode 100644
+index 0000000..34edc06
+--- /dev/null
++++ b/vaultroles.hcl
+@@ -0,0 +1,9 @@
++path "kv/vaultrole" {
++    capabilities = [
++        "create",
++        "read",
++        "update",
++        "delete",
++        "list",
++    ]
++}
