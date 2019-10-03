@@ -59,7 +59,7 @@ spec:
         args:
             [
               "-c",
-              "chown root /tmp/vault/initscript_vault; sh /tmp/vault/initscript_vault.sh"
+              "sh /tmp/vault/initscript_vault.sh"
             ]
         #args: ['u+x', '/vault/init_vault.sh', '/vault/init_vault.sh']
       volumes:
@@ -76,5 +76,6 @@ spec:
               # `name` here must match the name
               # specified in the ConfigMap's YAML
               name: vaultconfigmap
+              defaultMode: 0777
         #env:
         #  VAULT_ADDR: 'http://vault:8200'
