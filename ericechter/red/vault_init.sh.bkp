@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#apt-get update -y
+#apt-get install -y --no-install-recommends apt-utils
+#apt-get install -y wget \
+#                   unzip
+#wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip /vault
+#unzip vault_1.2.2_linux_amd64.zip
+#mv vault /usr/local/bin/vault
+
+read -r KEY TOKEN <<< \
+  "$(vault operator init -key-shares 1 -key-threshold 1 | \
+  awk -F"1: | Token: " '$2 != "" {ORS=" "; print $2}')"
+vault operator unseal "${KEY}"
+export VAULT_TOKEN="${TOKEN}"
+vault secrets enable -path secret kv
+vault kv put secret/foo value=bar
+
+sleep 1000

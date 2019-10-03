@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: red-ca-dumper
+spec:
+  restartPolicy: Never
+  volumes:
+    - name: shared-vol
+      emptyDir: {}
+
+  containers:
+
+  - name: red-ca-dumper
+    image: vault
+    env:
+      VAULT_ADDR: 'http://vault:8200'
+    command: ["/bin/sh"]
+    volumeMounts:
+    - name: 
+      mountPath: /usr/share/nginx/html

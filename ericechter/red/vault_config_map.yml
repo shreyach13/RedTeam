@@ -1,0 +1,17 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: vault-configmap
+data:
+
+  vault.hcl: |-
+    storage "file" {
+      path = "/"
+    }
+
+    disable_mlock = true
+
+    listener "tcp" {
+      address = "0.0.0.0:8200"
+      tls_disable = true
+    }
