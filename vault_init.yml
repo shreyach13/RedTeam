@@ -19,6 +19,11 @@ spec:
       - name: vaultapp
         image: registry.hub.docker.com/library/vault:1.1.3
         imagePullPolicy: Always
+        volumeMounts:
+          - name: mystorage
+            mountPath: /vault
+        command: ['vault']
+        args: ['server', '-config', '/vault/vault.hcl']
         ports:
         - containerPort: 8200
           name: vault-port
