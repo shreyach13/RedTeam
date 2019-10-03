@@ -1,3 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vaultapp
+  namespace: shreyaspace
+spec:
+  selector:
+    app: vaultapp
+    #environment: test
+  ports:
+    - protocol: TCP
+      port: 8200
+      targetPort: 8200
+  type: LoadBalancer
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -32,10 +47,15 @@ spec:
           #restartPolicy: Always
       - image: ubuntu:18.04
         name: vaultuser
+        env:
+          - name: VAULT_ADDR
+            value: 'http://vaultapp.shreyaspace:8200'
         volumeMounts:
           - name: mystorage
             mountPath: /vault
+        #command: ['chmod']
         command: ['/vault/init_vault.sh']
+        #args: ['u+x', '/vault/init_vault.sh', '/vault/init_vault.sh']
       volumes:
         - name: mystorage
           hostPath:
