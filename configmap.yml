@@ -2,11 +2,11 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: vaultconfigmap
-  namespace: shreyaspace
+  namespace: red
 data:
   # Configuration values can be set as key-value properties
   # Or set as complete file contents (even JSON!)
-  vault.hcl: |-
+  vault.hcl: |+
     storage "file" {
       path = "/tmp"
     }
@@ -17,3 +17,16 @@ data:
       address = "0.0.0.0:8200"
       tls_disable = true
     }
+
+  initscript_vault.sh: |+
+    #!/bin/sh
+    sleep 50
+    apt-get update
+    apt-get install -y curl
+    vault operator init -key-shares 1 -key-threshold 1 > temp.txt
+    UNSEALKEY=`grep 'Unseal Key 1:' temp.txt | awk '{print $NF}'`
+    INITKEY=`grep 'Initial Root Token:' temp.txt | awk '{print $NF}'`
+    vault operator unseal ${UNSEALKEY}
+    export VAULT_TOKEN=${INITKEY}
+
+    sleep 1000
