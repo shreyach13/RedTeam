@@ -9,7 +9,7 @@
 *.tfvars
 
 
-vault and zip
+#vault and zip
 
 *.zip
 vault
